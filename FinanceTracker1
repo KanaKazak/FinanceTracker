@@ -1,0 +1,246 @@
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
+from kivy.uix.gridlayout import GridLayout
+from datetime import datetime
+
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
+from kivy.uix.gridlayout import GridLayout
+
+from datetime import datetime
+
+def add_expense(name, date, category, amount):
+    expense = f"{name},{date},{category},{amount}\n"
+    with open('expenses.txt', 'a') as file:
+        file.write(expense)
+    print("Expense added successfully!")
+
+def add_income(name, date, category, amount):
+    income = f"{name},{date},{category},{amount}\n"
+    with open('incomes.txt', 'a') as file:
+        file.write(income)
+    print("Income added successfully!")
+
+def calculate_total_expenses():
+    total = 0
+    with open('expenses.txt', 'r') as file:
+        for line in file:
+            _, _, _, amount = line.strip().split(',')
+            total += float(amount)
+    return total
+
+def calculate_expenses_during_period(start_date, end_date):
+    total = 0
+    with open('expenses.txt', 'r') as file:
+        for line in file:
+            _, date, _, amount = line.strip().split(',')
+            expense_date = datetime.strptime(date, '%d-%m-%Y')
+            if start_date <= expense_date <= end_date:
+                total += float(amount)
+    return total
+
+def calculate_expenses_in_category(category):
+    total = 0
+    with open('expenses.txt', 'r') as file:
+        for line in file:
+            _, _, expense_category, amount = line.strip().split(',')
+            if expense_category.lower() == category.lower():
+                total += float(amount)
+    return total
+
+def calculate_expenses_with_name(name):
+    total = 0
+    with open('expenses.txt', 'r') as file:
+        for line in file:
+            expense_name, _, _, amount = line.strip().split(',')
+            if expense_name.lower() == name.lower():
+                total += float(amount)
+    return total
+
+def calculate_expenses_in_category_during_period(category, start_date, end_date):
+    total = 0
+    with open('expenses.txt', 'r') as file:
+        for line in file:
+            _, date, expense_category, amount = line.strip().split(',')
+            expense_date = datetime.strptime(date, '%d-%m-%Y')
+            if start_date <= expense_date <= end_date and expense_category.lower() == category.lower():
+                total += float(amount)
+    return total
+
+def calculate_expenses_with_name_during_period(name, start_date, end_date):
+    total = 0
+    with open('expenses.txt', 'r') as file:
+        for line in file:
+            expense_name, date, _, amount = line.strip().split(',')
+            expense_date = datetime.strptime(date, '%d-%m-%Y')
+            if start_date <= expense_date <= end_date and expense_name.lower() == name.lower():
+                total += float(amount)
+    return total
+
+def calculate_total_incomes_during_period(start_date, end_date):
+    total = 0
+    with open('incomes.txt', 'r') as file:
+        for line in file:
+            _, date, _, amount = line.strip().split(',')
+            income_date = datetime.strptime(date, '%d-%m-%Y')
+            if start_date <= income_date <= end_date:
+                total += float(amount)
+    return total
+
+
+# ... (Previous code)
+
+class ExpenseTrackerApp(App):
+    def build(self):
+        self.main_layout = BoxLayout(orientation='vertical')
+        self.create_menu()
+        return self.main_layout
+
+    def create_menu(self):
+        menu_layout = GridLayout(cols=2, spacing=10)
+        
+        menu_layout.add_widget(Button(text="See total expenses", on_press=self.show_total_expenses))
+        menu_layout.add_widget(Button(text="See expenses in a period", on_press=self.show_expenses_during_period))  # Corrected line
+        menu_layout.add_widget(Button(text="See expenses in a category", on_press=self.show_expenses_in_category))
+        menu_layout.add_widget(Button(text="See expenses with a certain name", on_press=self.show_expenses_with_name))
+        menu_layout.add_widget(Button(text="See expenses in a category during a period", on_press=self.show_expenses_in_category_during_period))
+        menu_layout.add_widget(Button(text="See expenses with a certain name during a period", on_press=self.show_expenses_with_name_during_period))
+        menu_layout.add_widget(Button(text="Record an expense", on_press=self.record_expense))
+        menu_layout.add_widget(Button(text="Record an income", on_press=self.record_income))
+        menu_layout.add_widget(Button(text="See total incomes in a period", on_press=self.show_total_incomes_during_period))
+        menu_layout.add_widget(Button(text="Exit", on_press=self.exit_app))
+
+        self.main_layout.add_widget(menu_layout)
+
+    def show_expenses_during_period(self, instance):  # Corrected method name
+        # Add logic to get start_date and end_date from user input
+        start_date = datetime.now()  # Replace with user input
+        end_date = datetime.now()  # Replace with user input
+        period_expenses = calculate_expenses_during_period(start_date, end_date)
+        self.show_popup(f"Expenses during the specified period: {period_expenses}")
+
+    def show_expenses_in_category(self, instance):
+        # Add logic to get category from user input
+        category = input("Enter the category to calculate the expenses for: ")
+        category_expenses = calculate_expenses_in_category(category)
+        self.show_popup(f"Expenses in category '{category}': {category_expenses}")
+
+    def show_expenses_with_name(self, instance):
+        # Add logic to get name from user input
+        name = input("Enter the name to calculate the expenses for: ")
+        name_expenses = calculate_expenses_with_name(name)
+        self.show_popup(f"Expenses with name '{name}': {name_expenses}")
+
+    def show_expenses_in_category_during_period(self, instance):
+        # Add logic to get category, start_date, and end_date from user input
+        category = input("Enter the category to calculate the expenses for: ")
+        start_date = datetime.now()  # Replace with user input
+        end_date = datetime.now()  # Replace with user input
+        category_period_expenses = calculate_expenses_in_category_during_period(category, start_date, end_date)
+        self.show_popup(f"Expenses in category '{category}' during the specified period: {category_period_expenses}")
+
+    def show_expenses_with_name_during_period(self, instance):
+        # Add logic to get name, start_date, and end_date from user input
+        name = input("Enter the name to calculate the expenses for: ")
+        start_date = datetime.now()  # Replace with user input
+        end_date = datetime.now()  # Replace with user input
+        name_period_expenses = calculate_expenses_with_name_during_period(name, start_date, end_date)
+        self.show_popup(f"Expenses with name '{name}' during the specified period: {name_period_expenses}")
+
+    def record_expense(self, instance):
+        # Use TextInput for user input
+        popup_layout = BoxLayout(orientation='vertical', spacing=10)
+
+        expense_name_input = TextInput(hint_text="Expense Name")
+        expense_date_input = TextInput(hint_text="Expense Date (DD-MM-YYYY)")
+        expense_category_input = TextInput(hint_text="Expense Category")
+        expense_amount_input = TextInput(hint_text="Expense Amount")
+
+        popup_layout.add_widget(expense_name_input)
+        popup_layout.add_widget(expense_date_input)
+        popup_layout.add_widget(expense_category_input)
+        popup_layout.add_widget(expense_amount_input)
+
+        submit_button = Button(text="Submit", on_press=lambda x: self.add_expense_popup(
+    expense_name_input.text, expense_date_input.text, expense_category_input.text, expense_amount_input.text
+))
+
+        popup_layout.add_widget(submit_button)
+
+        self.popup = Popup(title='Record an Expense', content=popup_layout, size_hint=(None, None), size=(400, 300))
+        self.popup.open()
+
+    def add_expense_popup(self, name, date, category, amount):
+        expense = f"{name},{date},{category},{amount}\n"
+        with open('expenses.txt', 'a') as file:
+            file.write(expense)
+        self.show_popup("Expense added successfully!")
+
+
+    def record_income(self, instance):
+        # Use TextInput for user input
+        popup_layout = BoxLayout(orientation='vertical', spacing=10)
+
+        income_name_input = TextInput(hint_text="Income Name")
+        income_date_input = TextInput(hint_text="Income Date (DD-MM-YYYY)")
+        income_category_input = TextInput(hint_text="Income Category")
+        income_amount_input = TextInput(hint_text="Income Amount")
+
+        popup_layout.add_widget(income_name_input)
+        popup_layout.add_widget(income_date_input)
+        popup_layout.add_widget(income_category_input)
+        popup_layout.add_widget(income_amount_input)
+
+        submit_button = Button(text="Submit", on_press=lambda x: self.add_income_popup(
+            income_name_input.text, income_date_input.text, income_category_input.text, income_amount_input.text
+        ))
+        popup_layout.add_widget(submit_button)
+
+        self.popup = Popup(title='Record an Income', content=popup_layout, size_hint=(None, None), size=(400, 300))
+        self.popup.open()
+
+    def add_income_popup(self, name, date, category, amount):
+        income = f"{name},{date},{category},{amount}\n"
+        with open('incomes.txt', 'a') as file:
+            file.write(income)
+        self.show_popup("Income added successfully!")
+
+    def show_total_incomes_during_period(self, instance):
+        # Add logic to get start_date and end_date from user input
+        start_date = datetime.now()  # Replace with user input
+        end_date = datetime.now()  # Replace with user input
+        period_incomes = calculate_total_incomes_during_period(start_date, end_date)
+        self.show_popup(f"Incomes during the specified period: {period_incomes}")
+
+    def show_total_expenses(self, instance):
+        total_expenses = calculate_total_expenses()
+        self.show_popup(f"Total expenses: {total_expenses}")
+
+    def show_popup(self, text):
+        popup_layout = BoxLayout(orientation='vertical')
+        popup_layout.add_widget(Label(text=text))
+        close_button = Button(text="Close", on_press=self.dismiss_popup)
+        popup_layout.add_widget(close_button)
+
+        self.popup = Popup(title='Expense Tracker', content=popup_layout, size_hint=(None, None), size=(400, 200))
+        self.popup.open()
+
+    def dismiss_popup(self, instance):
+        self.popup.dismiss()
+
+    def exit_app(self, instance):
+        self.stop()
+
+# ... (Remaining code)
+
+# Run the app
+if __name__ == '__main__':
+    ExpenseTrackerApp().run()
