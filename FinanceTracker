@@ -164,23 +164,27 @@ class ExpenseTrackerApp(App):
         popup_layout = BoxLayout(orientation='vertical', spacing=10)
 
         expense_name_input = TextInput(hint_text="Expense Name")
-        expense_date_input = TextInput(hint_text="Expense Date (DD-MM-YYYY)")
+        day_spinner = Spinner(text="Select Day", values=[str(i) for i in range(1, 32)], size_hint=(None, None), size=(200, 44))
+        month_spinner = Spinner(text="Select Month", values=[str(i) for i in range(1, 13)], size_hint=(None, None), size=(200, 44))
+        year_spinner = Spinner(text="Select Year", values=[str(i) for i in range(2023, 2031)], size_hint=(None, None), size=(200, 44))
         categories = ['Transport', 'Prepared food', 'Work', 'Necessity', 'Relationship', 'Indulgance', 'Misc']
         expense_category_input = Spinner(text="Select Category", values=categories, size_hint=(None, None), size=(200, 44))
         expense_amount_input = TextInput(hint_text="Expense Amount")
 
         popup_layout.add_widget(expense_name_input)
-        popup_layout.add_widget(expense_date_input)
+        popup_layout.add_widget(day_spinner)
+        popup_layout.add_widget(month_spinner)
+        popup_layout.add_widget(year_spinner)
         popup_layout.add_widget(expense_category_input)
         popup_layout.add_widget(expense_amount_input)
 
         submit_button = Button(text="Submit", on_press=lambda x: self.add_expense_popup(
-    expense_name_input.text, expense_date_input.text, expense_category_input.text, expense_amount_input.text
+    expense_name_input.text, f"{day_spinner.text}-{month_spinner.text}-{year_spinner.text}", expense_category_input.text, expense_amount_input.text
 ))
 
         popup_layout.add_widget(submit_button)
 
-        self.popup = Popup(title='Record an Expense', content=popup_layout, size_hint=(None, None), size=(400, 300))
+        self.popup = Popup(title='Record an Expense', content=popup_layout, size_hint=(None, None), size=(500, 400))
         self.popup.open()
 
     def add_expense_popup(self, name, date, category, amount):
@@ -194,26 +198,30 @@ class ExpenseTrackerApp(App):
 
 
     def record_income(self, instance):
-        # Use TextInput for user input
         popup_layout = BoxLayout(orientation='vertical', spacing=10)
 
         income_name_input = TextInput(hint_text="Income Name")
-        income_date_input = TextInput(hint_text="Income Date (DD-MM-YYYY)")
+        day_spinner = Spinner(text="Select Day", values=[str(i) for i in range(1, 32)], size_hint=(None, None), size=(200, 44))
+        month_spinner = Spinner(text="Select Month", values=[str(i) for i in range(1, 13)], size_hint=(None, None), size=(200, 44))
+        year_spinner = Spinner(text="Select Year", values=[str(i) for i in range(2023, 2031)], size_hint=(None, None), size=(200, 44))
         categories = ['Work', 'Misc']
         income_category_input = Spinner(text="Select Category", values=categories, size_hint=(None, None), size=(200, 44))
         income_amount_input = TextInput(hint_text="Income Amount")
 
         popup_layout.add_widget(income_name_input)
-        popup_layout.add_widget(income_date_input)
+        popup_layout.add_widget(day_spinner)
+        popup_layout.add_widget(month_spinner)
+        popup_layout.add_widget(year_spinner)
         popup_layout.add_widget(income_category_input)
         popup_layout.add_widget(income_amount_input)
 
         submit_button = Button(text="Submit", on_press=lambda x: self.add_income_popup(
-            income_name_input.text, income_date_input.text, income_category_input.text, income_amount_input.text
+            income_name_input.text, f"{day_spinner.text}-{month_spinner.text}-{year_spinner.text}",
+            income_category_input.text, income_amount_input.text
         ))
         popup_layout.add_widget(submit_button)
 
-        self.popup = Popup(title='Record an Income', content=popup_layout, size_hint=(None, None), size=(400, 300))
+        self.popup = Popup(title='Record an Income', content=popup_layout, size_hint=(None, None), size=(500, 400))
         self.popup.open()
 
     def add_income_popup(self, name, date, category, amount):
