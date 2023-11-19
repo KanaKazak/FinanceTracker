@@ -95,6 +95,14 @@ def calculate_total_incomes_during_period(start_date, end_date):
                 total += float(amount)
     return total
 
+def calculate_total_incomes():
+    total = 0
+    with open('incomes.txt', 'r') as file:
+        for line in file:
+            _, date, _, amount = line.strip().split(',')
+            total += float(amount)
+    return total
+
 
 # ... (Previous code)
 
@@ -107,15 +115,12 @@ class ExpenseTrackerApp(App):
     def create_menu(self):
         menu_layout = GridLayout(cols=2, spacing=10)
         
-        menu_layout.add_widget(Button(text="See total expenses", on_press=self.show_total_expenses))
-        menu_layout.add_widget(Button(text="See expenses in a period", on_press=self.show_expenses_during_period))  # Corrected line
-        menu_layout.add_widget(Button(text="See expenses in a category", on_press=self.show_expenses_in_category))
-        menu_layout.add_widget(Button(text="See expenses with a certain name", on_press=self.show_expenses_with_name))
-        menu_layout.add_widget(Button(text="See expenses in a category during a period", on_press=self.show_expenses_in_category_during_period))
-        menu_layout.add_widget(Button(text="See expenses with a certain name during a period", on_press=self.show_expenses_with_name_during_period))
-        menu_layout.add_widget(Button(text="Record an expense", on_press=self.record_expense))
-        menu_layout.add_widget(Button(text="Record an income", on_press=self.record_income))
-        menu_layout.add_widget(Button(text="See total incomes in a period", on_press=self.show_total_incomes_during_period))
+        menu_layout.add_widget(Button(text="Record an Expense", on_press=self.record_expense))
+        menu_layout.add_widget(Button(text="Record an Income", on_press=self.record_income))
+        menu_layout.add_widget(Button(text="See Total Expenses", on_press=self.show_total_expenses))
+        menu_layout.add_widget(Button(text="See Total Income", on_press=self.show_total_income))
+        menu_layout.add_widget(Button(text="See Account", on_press=self.show_account))
+        #menu_layout.add_widget(Button(text="Other", on_press=self.show_other_options))
         menu_layout.add_widget(Button(text="Exit", on_press=self.exit_app))
 
         self.main_layout.add_widget(menu_layout)
@@ -182,7 +187,8 @@ class ExpenseTrackerApp(App):
         expense = f"{name},{date},{category},{amount}\n"
         with open('expenses.txt', 'a') as file:
             file.write(expense)
-        self.show_popup("Expense added successfully!")
+        self.show_popup("Expense added successfully!", "Expense Details:\nName: {}\nDate: {}\nCategory: {}\nAmount: {}".format(name, date, category, amount))
+
 
 
     def record_income(self, instance):
@@ -224,14 +230,64 @@ class ExpenseTrackerApp(App):
         total_expenses = calculate_total_expenses()
         self.show_popup(f"Total expenses: {total_expenses}")
 
-    def show_popup(self, text):
+    def show_total_income(self, instance):
+        total_income = calculate_total_incomes()
+        self.show_popup(f"Total expenses: {total_income}")
+
+    def show_account(self, instance):
+        total_income = calculate_total_incomes()
+        total_expenses = calculate_total_expenses()
+        account_balance = total_income - total_expenses
+        self.show_popup(f"Account Balance: {account_balance}")
+
+    def show_other_options(self, instance):
+        other_options_layout = BoxLayout(orientation='vertical', spacing=10)
+
+        options = [
+        "See expenses in a period",
+        "See expenses in a category",
+        "See expenses with a certain name",
+        "See expenses in a category during a period",
+        "See expenses with a certain name during a period",
+        "Exit"
+    ]
+
+        for option in options:
+            button = Button(text=option, on_press=lambda x, opt=option: self.handle_other_option(opt))
+            other_options_layout.add_widget(button)
+
+        self.show_popup("Other Options", other_options_layout)
+
+    def handle_other_option(self, option):
+    # Implement logic based on the selected option
+        if option == "See expenses in a period":
+            self.show_expenses_during_period(None)
+        elif option == "See expenses in a category":
+            self.show_expenses_in_category(None)
+        elif option == "See expenses with a certain name":
+            self.show_expenses_with_name(None)
+        elif option == "See expenses in a category during a period":
+            self.show_expenses_in_category_during_period(None)
+        elif option == "See expenses with a certain name during a period":
+            self.show_expenses_with_name_during_period(None)
+        elif option == "Exit":
+            self.exit_app(None)
+
+    def show_popup(self, title, content):
         popup_layout = BoxLayout(orientation='vertical')
-        popup_layout.add_widget(Label(text=text))
+
+        if isinstance(content, str):
+            popup_layout.add_widget(Label(text=content))
+        else:
+            popup_layout.add_widget(content)
+
         close_button = Button(text="Close", on_press=self.dismiss_popup)
         popup_layout.add_widget(close_button)
 
-        self.popup = Popup(title='Expense Tracker', content=popup_layout, size_hint=(None, None), size=(400, 200))
+        self.popup = Popup(title=title, content=popup_layout, size_hint=(None, None), size=(400, 200))
         self.popup.open()
+
+
 
     def dismiss_popup(self, instance):
         self.popup.dismiss()
