@@ -6,16 +6,8 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.uix.gridlayout import GridLayout
 from datetime import datetime
+from kivy.uix.spinner import Spinner
 
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.popup import Popup
-from kivy.uix.gridlayout import GridLayout
-
-from datetime import datetime
 
 def add_expense(name, date, category, amount):
     expense = f"{name},{date},{category},{amount}\n"
@@ -95,16 +87,13 @@ def calculate_total_incomes_during_period(start_date, end_date):
                 total += float(amount)
     return total
 
-def calculate_total_incomes():
+def calculate_total_income():
     total = 0
     with open('incomes.txt', 'r') as file:
         for line in file:
             _, date, _, amount = line.strip().split(',')
             total += float(amount)
     return total
-
-
-# ... (Previous code)
 
 class ExpenseTrackerApp(App):
     def build(self):
@@ -166,7 +155,8 @@ class ExpenseTrackerApp(App):
 
         expense_name_input = TextInput(hint_text="Expense Name")
         expense_date_input = TextInput(hint_text="Expense Date (DD-MM-YYYY)")
-        expense_category_input = TextInput(hint_text="Expense Category")
+        categories = ['Transport', 'Prepared food', 'Work', 'Necessity', 'Relationship', 'Indulgance', 'Misc']
+        expense_category_input = Spinner(text="Select Category", values=categories, size_hint=(None, None), size=(200, 44))
         expense_amount_input = TextInput(hint_text="Expense Amount")
 
         popup_layout.add_widget(expense_name_input)
@@ -185,10 +175,12 @@ class ExpenseTrackerApp(App):
 
     def add_expense_popup(self, name, date, category, amount):
         expense = f"{name},{date},{category},{amount}\n"
-        with open('expenses.txt', 'a') as file:
-            file.write(expense)
-        self.show_popup("Expense added successfully!", "Expense Details:\nName: {}\nDate: {}\nCategory: {}\nAmount: {}".format(name, date, category, amount))
-
+        try:
+            with open('expenses.txt', 'a') as file:
+                file.write(expense)
+            self.show_popup("Expense added successfully!", None)
+        except Exception as e:
+            self.show_popup(f"Error adding expense: {e}", None)
 
 
     def record_income(self, instance):
@@ -197,7 +189,8 @@ class ExpenseTrackerApp(App):
 
         income_name_input = TextInput(hint_text="Income Name")
         income_date_input = TextInput(hint_text="Income Date (DD-MM-YYYY)")
-        income_category_input = TextInput(hint_text="Income Category")
+        categories = ['Work', 'Misc']
+        income_category_input = Spinner(text="Select Category", values=categories, size_hint=(None, None), size=(200, 44))
         income_amount_input = TextInput(hint_text="Income Amount")
 
         popup_layout.add_widget(income_name_input)
@@ -217,7 +210,7 @@ class ExpenseTrackerApp(App):
         income = f"{name},{date},{category},{amount}\n"
         with open('incomes.txt', 'a') as file:
             file.write(income)
-        self.show_popup("Income added successfully!")
+        self.show_popup("Income added successfully!", "Income Details:\nName: {}\nDate: {}\nCategory: {}\nAmount: {}".format(name, date, category, amount))
 
     def show_total_incomes_during_period(self, instance):
         # Add logic to get start_date and end_date from user input
@@ -231,11 +224,11 @@ class ExpenseTrackerApp(App):
         self.show_popup(f"Total expenses: {total_expenses}")
 
     def show_total_income(self, instance):
-        total_income = calculate_total_incomes()
-        self.show_popup(f"Total expenses: {total_income}")
+        total_income = calculate_total_income()
+        self.show_popup(f"Total income: {total_income}")
 
     def show_account(self, instance):
-        total_income = calculate_total_incomes()
+        total_income = calculate_total_income()
         total_expenses = calculate_total_expenses()
         account_balance = total_income - total_expenses
         self.show_popup(f"Account Balance: {account_balance}")
@@ -273,30 +266,30 @@ class ExpenseTrackerApp(App):
         elif option == "Exit":
             self.exit_app(None)
 
-    def show_popup(self, title, content):
+    def show_popup(self, text, content=None):
         popup_layout = BoxLayout(orientation='vertical')
-
-        if isinstance(content, str):
-            popup_layout.add_widget(Label(text=content))
-        else:
-            popup_layout.add_widget(content)
-
+        popup_layout.add_widget(Label(text=text))
+        if content is not None:
+            if isinstance(content, str):
+                popup_layout.add_widget(Label(text=content))
+            else:
+                popup_layout.add_widget(content)
         close_button = Button(text="Close", on_press=self.dismiss_popup)
         popup_layout.add_widget(close_button)
 
-        self.popup = Popup(title=title, content=popup_layout, size_hint=(None, None), size=(400, 200))
+        self.popup = Popup(title='Expense Tracker', content=popup_layout, size_hint=(None, None), size=(400, 200))
         self.popup.open()
 
 
 
-    def dismiss_popup(self, instance):
-        self.popup.dismiss()
+
+
+    def dismiss_popup(self, instance=None):
+        if self.popup:
+            self.popup.dismiss()
 
     def exit_app(self, instance):
         self.stop()
-
-# ... (Remaining code)
-
 # Run the app
 if __name__ == '__main__':
     ExpenseTrackerApp().run()
