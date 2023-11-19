@@ -7,23 +7,33 @@ from kivy.uix.popup import Popup
 from kivy.uix.gridlayout import GridLayout
 from datetime import datetime
 from kivy.uix.spinner import Spinner
+import os
+
+expenses_file_path = 'C:\\Users\\Канагат\\Desktop\\Finance Tracker\\FinanceTracker\\expenses.txt'
+if not os.path.isfile(expenses_file_path):
+    with open(expenses_file_path, 'w'):
+        pass 
+incomes_file_path = 'C:\\Users\\Канагат\\Desktop\\Finance Tracker\\FinanceTracker\\incomes.txt'
+if not os.path.isfile(incomes_file_path):
+    with open(incomes_file_path, 'w'):
+        pass 
 
 
 def add_expense(name, date, category, amount):
     expense = f"{name},{date},{category},{amount}\n"
-    with open('expenses.txt', 'a') as file:
+    with open(expenses_file_path, 'a') as file:
         file.write(expense)
     print("Expense added successfully!")
 
 def add_income(name, date, category, amount):
     income = f"{name},{date},{category},{amount}\n"
-    with open('incomes.txt', 'a') as file:
+    with open(incomes_file_path, 'a') as file:
         file.write(income)
     print("Income added successfully!")
 
 def calculate_total_expenses():
     total = 0
-    with open('expenses.txt', 'r') as file:
+    with open(expenses_file_path, 'r') as file:
         for line in file:
             _, _, _, amount = line.strip().split(',')
             total += float(amount)
@@ -31,7 +41,7 @@ def calculate_total_expenses():
 
 def calculate_expenses_during_period(start_date, end_date):
     total = 0
-    with open('expenses.txt', 'r') as file:
+    with open(expenses_file_path, 'r') as file:
         for line in file:
             _, date, _, amount = line.strip().split(',')
             expense_date = datetime.strptime(date, '%d-%m-%Y')
@@ -41,7 +51,7 @@ def calculate_expenses_during_period(start_date, end_date):
 
 def calculate_expenses_in_category(category):
     total = 0
-    with open('expenses.txt', 'r') as file:
+    with open(expenses_file_path, 'r') as file:
         for line in file:
             _, _, expense_category, amount = line.strip().split(',')
             if expense_category.lower() == category.lower():
@@ -50,7 +60,7 @@ def calculate_expenses_in_category(category):
 
 def calculate_expenses_with_name(name):
     total = 0
-    with open('expenses.txt', 'r') as file:
+    with open(expenses_file_path, 'r') as file:
         for line in file:
             expense_name, _, _, amount = line.strip().split(',')
             if expense_name.lower() == name.lower():
@@ -59,7 +69,7 @@ def calculate_expenses_with_name(name):
 
 def calculate_expenses_in_category_during_period(category, start_date, end_date):
     total = 0
-    with open('expenses.txt', 'r') as file:
+    with open(expenses_file_path, 'r') as file:
         for line in file:
             _, date, expense_category, amount = line.strip().split(',')
             expense_date = datetime.strptime(date, '%d-%m-%Y')
@@ -69,7 +79,7 @@ def calculate_expenses_in_category_during_period(category, start_date, end_date)
 
 def calculate_expenses_with_name_during_period(name, start_date, end_date):
     total = 0
-    with open('expenses.txt', 'r') as file:
+    with open(expenses_file_path, 'r') as file:
         for line in file:
             expense_name, date, _, amount = line.strip().split(',')
             expense_date = datetime.strptime(date, '%d-%m-%Y')
@@ -79,7 +89,7 @@ def calculate_expenses_with_name_during_period(name, start_date, end_date):
 
 def calculate_total_incomes_during_period(start_date, end_date):
     total = 0
-    with open('incomes.txt', 'r') as file:
+    with open(incomes_file_path, 'r') as file:
         for line in file:
             _, date, _, amount = line.strip().split(',')
             income_date = datetime.strptime(date, '%d-%m-%Y')
@@ -89,7 +99,7 @@ def calculate_total_incomes_during_period(start_date, end_date):
 
 def calculate_total_income():
     total = 0
-    with open('incomes.txt', 'r') as file:
+    with open(incomes_file_path, 'r') as file:
         for line in file:
             _, date, _, amount = line.strip().split(',')
             total += float(amount)
@@ -176,7 +186,7 @@ class ExpenseTrackerApp(App):
     def add_expense_popup(self, name, date, category, amount):
         expense = f"{name},{date},{category},{amount}\n"
         try:
-            with open('expenses.txt', 'a') as file:
+            with open(expenses_file_path, 'a') as file:
                 file.write(expense)
             self.show_popup("Expense added successfully!", None)
         except Exception as e:
@@ -208,7 +218,8 @@ class ExpenseTrackerApp(App):
 
     def add_income_popup(self, name, date, category, amount):
         income = f"{name},{date},{category},{amount}\n"
-        with open('incomes.txt', 'a') as file:
+        with open(incomes_file_path, 'a') as file:
+            print(f"Writing to income file: {income}")
             file.write(income)
         self.show_popup("Income added successfully!", "Income Details:\nName: {}\nDate: {}\nCategory: {}\nAmount: {}".format(name, date, category, amount))
 
