@@ -298,15 +298,9 @@ class ExpenseTrackerApp(App):
 
         self.popup = Popup(title='Expense Tracker', content=popup_layout, size_hint=(None, None), size=(400, 200))
         self.popup.open()
-
-
-
-
-
     def dismiss_popup(self, instance=None):
         if self.popup:
             self.popup.dismiss()
-
     def exit_app(self, instance):
         self.stop()
 # Run the app
